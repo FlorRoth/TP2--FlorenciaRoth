@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Asistente Clínico IA | Clínica Salud Integral{% endblock %}
+
+{% block content %}
+<section class="seccion">
+  <h2>Asistente de Orientación Médica con IA</h2>
+  <p>
+    Contanos qué síntomas tenés o qué estudio necesitás realizar. Nuestro servicio analizará tu consulta para recomendarte la
+    <strong>especialidad médica indicada</strong>, el <strong>nivel de prioridad</strong> y
+    cuidados previos antes de asistir al consultorio.
+  </p>
+
+  <form id="form-asistente-ia" method="POST" action="{{ url_for('asistente_ia') }}" novalidate>
+    <div class="campo">
+      <label for="sintomas">Describí tus síntomas o motivo de consulta:</label>
+      <textarea
+        id="sintomas"
+        name="sintomas"
+        rows="15"
+        placeholder="Ej.: Hace tres días tengo dolor en la rodilla derecha al subir escaleras y una leve inflamación..."
+        required
+      >{{ sintomas }}</textarea>
+      <p id="error-sintomas" class="error">{{ errores.get('sintomas', '') }}</p>
+    </div>
+
+    <div class="ejemplos-rapidos">
+      <span>Ejemplos rápidos:</span>
+      <button type="button" class="boton-ejemplo" data-ejemplo="Tengo palpitaciones ocasionales y quiero hacerme un control de presión arterial y electrocardiograma.">Chequeo cardiológico</button>
+      <button type="button" class="boton-ejemplo" data-ejemplo="Me salió una mancha rojiza en el brazo con picazón hace una semana y quiero controlarme lunares.">Consulta dermatológica</button>
+      <button type="button" class="boton-ejemplo" data-ejemplo="Siento acidez frecuente después de comer y dolor abdominal leve desde hace varios días.">Malestar digestivo</button>
+    </div>
+
+    <button type="submit" id="btn-consultar-ia">Analizar Síntomas con IA</button>
+  </form>
+
+  {% if resultado_ia %}
+    <div class="tarjeta-ia resultado-destacado">
+      <h3>Resultado de la Orientación Inteligente</h3>
+      <p><strong>Especialidad Recomendada:</strong> {{ resultado_ia.especialidad }}</p>
+      <p><strong>Profesional Sugerido:</strong> {{ resultado_ia.profesional }}</p>
+      <p>
+        <strong>Prioridad Estimada:</strong>
+        <span class="badge {{ 'badge-alta' if 'Alta' in resultado_ia.prioridad else ('badge-media' if 'Media' in resultado_ia.prioridad else 'badge-baja') }}">
+          {{ resultado_ia.prioridad }}
+        </span>
+      </p>
+      <p><strong>Recomendación previa a la consulta:</strong> {{ resultado_ia.recomendacion }}</p>
+      <p class="motor-ia-info"><small>Procesado por: {{ resultado_ia.motor }}</small></p>
+
+      <div class="acciones-ia">
+        <a
+          href="{{ url_for('turnos', especialidad=resultado_ia.especialidad, motivo=sintomas) }}"
+          class="boton-enlace"
+        >
+          Reservar Turno en {{ resultado_ia.especialidad }}
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
