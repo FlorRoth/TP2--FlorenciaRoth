@@ -42,7 +42,7 @@
       <div class="campo">
         <label for="especialidad">Especialidad Médica:</label>
         <select id="especialidad" name="especialidad" required>
-          <option value="">-- Seleccioná una especialidad --</option>
+          <option value="">Seleccioná una especialidad</option>
           {% for nombre_esp, info in especialidades_catalogo.items() %}
             <option
               value="{{ nombre_esp }}"
@@ -73,7 +73,7 @@
       <div class="campo">
         <label for="hora">Horario Disponible:</label>
         <select id="hora" name="hora" data-hora-previa="{{ valores.hora }}" required>
-          <option value="">-- Elegí especialidad y fecha --</option>
+          <option value=""> Elegí especialidad y fecha </option>
           {% if valores.especialidad in especialidades_catalogo %}
             {% for h in especialidades_catalogo[valores.especialidad].horarios %}
               <option value="{{ h }}" {% if valores.hora == h %}selected{% endif %}>{{ h }} hs</option>
