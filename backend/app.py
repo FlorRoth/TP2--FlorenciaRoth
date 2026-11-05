@@ -155,13 +155,18 @@ def consultar_servicio_ia(sintomas_texto: str) -> dict:
     nombres_especialidades = list(ESPECIALIDADES.keys())
 
     prompt = (
-        "Actuá como un asistente de orientación médica para una clínica en Argentina. "
+        "Sos exclusivamente un clasificador de síntomas médicos para asignar turnos en una clínica de Argentina. "
+        "PROHIBIDO actuar como un chat general o responder preguntas ajenas a la salud. "
         f"Especialidades disponibles: {', '.join(nombres_especialidades)}. "
-        f"El paciente describe el siguiente motivo o síntomas: '{sintomas_texto}'. "
+        f"Texto ingresado por el usuario: '{sintomas_texto}'. "
+        "Primero evaluá si el texto describe síntomas médicos, malestares físicos o un estudio/control de salud. "
+        "Si el texto NO trata sobre síntomas médicos ni controles de salud (por ejemplo: saludos, preguntas generales, "
+        "chistes, programación, cocina, deportes o cualquier otro tema), poné 'es_sintoma_medico' en false. "
         "Respondé ÚNICAMENTE con un objeto JSON válido con las claves exactas: "
-        "'especialidad' (debe ser exactamente una de las especialidades disponibles), "
+        "'es_sintoma_medico' (boolean true o false), "
+        "'especialidad' (una de las especialidades disponibles, o vacío si es_sintoma_medico es false), "
         "'prioridad' ('Baja - Control General', 'Media - Programada' o 'Alta - Prioritaria') "
-        "y 'recomendacion' (un consejo breve, empático y claro en español rioplatense de máximo 2 oraciones)."
+        "y 'recomendacion' (un consejo médico breve para los síntomas de máximo 2 oraciones, o vacío si es_sintoma_medico es false)."
     )
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
@@ -185,10 +190,18 @@ def consultar_servicio_ia(sintomas_texto: str) -> dict:
                 data["candidates"][0]["content"]["parts"][0]["text"].strip()
             )
             resultado = json.loads(texto_respuesta)
+
+            if not resultado.get("es_sintoma_medico", True):
+                return {
+                    "es_valido": False,
+                    "error": "Este asistente solo analiza síntomas o consultas médicas. Por favor describí qué malestar o control de salud necesitás.",
+                }
+
             esp = resultado.get("especialidad", "Clínica Médica")
             if esp not in ESPECIALIDADES:
                 esp = "Clínica Médica"
             return {
+                "es_valido": True,
                 "especialidad": esp,
                 "profesional": ESPECIALIDADES[esp]["profesional"],
                 "prioridad": resultado.get("prioridad", "Media - Programada"),
@@ -200,6 +213,7 @@ def consultar_servicio_ia(sintomas_texto: str) -> dict:
             }
     except Exception:
         return {
+            "es_valido": True,
             "especialidad": "Clínica Médica",
             "profesional": ESPECIALIDADES["Clínica Médica"]["profesional"],
             "prioridad": "Media - Programada",
@@ -421,8 +435,12 @@ def turnos():
                 profesional = ESPECIALIDADES[especialidad]["profesional"]
                 if len(motivo) >= 10:
                     analisis_ia = consultar_servicio_ia(motivo)
-                    prioridad_ia = analisis_ia["prioridad"]
-                    recomendacion_ia = analisis_ia["recomendacion"]
+                    if analisis_ia.get("es_valido"):
+                        prioridad_ia = analisis_ia["prioridad"]
+                        recomendacion_ia = analisis_ia["recomendacion"]
+                    else:
+                        prioridad_ia = "Normal"
+                        recomendacion_ia = "Sin orientación previa de IA."
                 else:
                     motivo = motivo if motivo else "Consulta general"
                     prioridad_ia = "Normal"
@@ -497,24 +515,28 @@ def asistente_ia():
                 "para que la IA pueda orientarte adecuadamente."
             )
         else:
-            resultado_ia = consultar_servicio_ia(sintomas_ingresados)
-            conn = get_db_connection()
-            conn.execute(
-                """
-                INSERT INTO consultas_ia (usuario_id, sintomas, especialidad_sugerida, prioridad, recomendacion, motor_ia)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    session.get("usuario_id"),
-                    sintomas_ingresados,
-                    resultado_ia["especialidad"],
-                    resultado_ia["prioridad"],
-                    resultado_ia["recomendacion"],
-                    resultado_ia["motor"],
-                ),
-            )
-            conn.commit()
-            conn.close()
+            analisis = consultar_servicio_ia(sintomas_ingresados)
+            if not analisis.get("es_valido"):
+                errores["sintomas"] = analisis["error"]
+            else:
+                resultado_ia = analisis
+                conn = get_db_connection()
+                conn.execute(
+                    """
+                    INSERT INTO consultas_ia (usuario_id, sintomas, especialidad_sugerida, prioridad, recomendacion, motor_ia)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        session.get("usuario_id"),
+                        sintomas_ingresados,
+                        resultado_ia["especialidad"],
+                        resultado_ia["prioridad"],
+                        resultado_ia["recomendacion"],
+                        resultado_ia["motor"],
+                    ),
+                )
+                conn.commit()
+                conn.close()
 
     return render_template("asistente_ia.html", errores=errores, resultado_ia=resultado_ia, sintomas=sintomas_ingresados)
 
@@ -529,6 +551,8 @@ def api_orientacion_ia():
         return jsonify({"ok": False, "error": "Describí los síntomas con al menos 10 caracteres."}), 400
 
     resultado = consultar_servicio_ia(sintomas)
+    if not resultado.get("es_valido"):
+        return jsonify({"ok": False, "error": resultado["error"]}), 400
 
     conn = get_db_connection()
     conn.execute(
