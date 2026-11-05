@@ -214,7 +214,6 @@ document.addEventListener("DOMContentLoaded", () => {
     formTurno.addEventListener("submit", (e) => {
       let valido = true;
 
-      const motivo = document.getElementById("motivo");
       const errMotivo = document.getElementById("error-motivo");
       const errEsp = document.getElementById("error-especialidad");
       const errFecha = document.getElementById("error-fecha");
@@ -223,11 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
       [errMotivo, errEsp, errFecha, errHora].forEach((el) => {
         if (el) el.textContent = "";
       });
-
-      if (!motivo.value || motivo.value.trim().length < 10) {
-        errMotivo.textContent = "Describí el motivo de consulta o síntomas (mínimo 10 caracteres).";
-        valido = false;
-      }
 
       if (!selectEspecialidad.value) {
         errEsp.textContent = "Seleccioná una especialidad médica.";

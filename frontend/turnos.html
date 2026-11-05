@@ -4,7 +4,7 @@
 
 {% block content %}
 <section class="seccion">
-  <h2>Solicitar Nuevo Turno</h2>
+  <h2>Solicitar Turno</h2>
   <p>
     Completá los datos para reservar tu turno. Si no estás segura/o de qué especialidad elegir,
     escribí primero tus síntomas en el motivo de consulta y presioná
@@ -13,13 +13,12 @@
 
   <form id="form-turno" method="POST" action="{{ url_for('turnos') }}" novalidate>
     <div class="campo">
-      <label for="motivo">Motivo de consulta o síntomas:</label>
+      <label for="motivo">Motivo de consulta o síntomas (opcional):</label>
       <textarea
         id="motivo"
         name="motivo"
         rows="3"
-        placeholder="Describí brevemente tus síntomas o el control que necesitás (mínimo 10 caracteres)..."
-        required
+        placeholder="Opcional: describí tus síntomas si querés que la IA te sugiera una especialidad..."
       >{{ valores.motivo }}</textarea>
       <p id="error-motivo" class="error">{{ errores.get('motivo', '') }}</p>
 
@@ -84,7 +83,7 @@
       </div>
     </div>
 
-    <button type="submit" id="btn-confirmar-turno">Confirmar Reserva de Turno</button>
+    <button type="submit" id="btn-confirmar-turno">Confirmar Turno</button>
   </form>
 </section>
 
