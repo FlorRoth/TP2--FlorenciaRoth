@@ -368,7 +368,7 @@ def login():
                 session["usuario_id"] = usuario["id"]
                 session["usuario_nombre"] = usuario["nombre"]
                 session["usuario_email"] = usuario["email"]
-                flash(f"¡Hola de nuevo, {usuario['nombre']}!", "exito")
+                flash(f"¡Hola, {usuario['nombre']}!", "exito")
                 return redirect(url_for("turnos"))
             else:
                 errores["general"] = "El correo electrónico o la contraseña son incorrectos."

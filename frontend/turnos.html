@@ -26,6 +26,7 @@
         <button type="button" id="btn-sugerir-ia" class="boton-ia">
           Sugerir especialidad con IA según mis síntomas
         </button>
+        <span id="spinner-ia-turno" class="spinner oculto"></span>
         <span id="estado-ia-inline" class="texto-ayuda"></span>
       </div>
 
@@ -83,7 +84,10 @@
       </div>
     </div>
 
-    <button type="submit" id="btn-confirmar-turno">Confirmar Turno</button>
+    <div class="barra-ia-inline">
+      <button type="submit" id="btn-confirmar-turno">Confirmar Turno</button>
+      <span id="spinner-reserva" class="spinner oculto"></span>
+    </div>
   </form>
 </section>
 

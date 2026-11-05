@@ -31,7 +31,11 @@
       <button type="button" class="boton-ejemplo" data-ejemplo="Siento acidez frecuente después de comer y dolor abdominal leve desde hace varios días.">Malestar digestivo</button>
     </div>
 
-    <button type="submit" id="btn-consultar-ia">Analizar Síntomas con IA</button>
+    <div class="barra-ia-inline">
+      <button type="submit" id="btn-consultar-ia">Analizar Síntomas con IA</button>
+      <span id="spinner-asistente" class="spinner oculto"></span>
+      <span id="texto-cargando-ia" class="texto-ayuda oculto">Analizando síntomas con IA...</span>
+    </div>
   </form>
 
   {% if resultado_ia %}

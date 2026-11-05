@@ -51,6 +51,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!valido) {
         e.preventDefault();
+      } else {
+        const spinnerReserva = document.getElementById("spinner-reserva");
+        const btnConfirmar = document.getElementById("btn-confirmar-turno");
+        if (spinnerReserva) spinnerReserva.classList.remove("oculto");
+        if (btnConfirmar) btnConfirmar.disabled = true;
       }
     });
   }
@@ -81,6 +86,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!valido) {
         e.preventDefault();
+      } else {
+        const spinnerReserva = document.getElementById("spinner-reserva");
+        const btnConfirmar = document.getElementById("btn-confirmar-turno");
+        if (spinnerReserva) spinnerReserva.classList.remove("oculto");
+        if (btnConfirmar) btnConfirmar.disabled = true;
       }
     });
   }
@@ -147,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const campoMotivo = document.getElementById("motivo");
       const errMotivo = document.getElementById("error-motivo");
       const estadoIA = document.getElementById("estado-ia-inline");
+      const spinnerIATurno = document.getElementById("spinner-ia-turno");
       const panelIA = document.getElementById("panel-sugerencia-ia");
 
       if (errMotivo) errMotivo.textContent = "";
@@ -161,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       btnSugerirIA.disabled = true;
+      if (spinnerIATurno) spinnerIATurno.classList.remove("oculto");
       if (estadoIA) estadoIA.textContent = "Analizando síntomas con IA...";
 
       try {
@@ -204,6 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } finally {
         btnSugerirIA.disabled = false;
+        if (spinnerIATurno) spinnerIATurno.classList.add("oculto");
       }
     });
   }
@@ -253,6 +266,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!valido) {
         e.preventDefault();
+      } else {
+        const spinnerReserva = document.getElementById("spinner-reserva");
+        const btnConfirmar = document.getElementById("btn-confirmar-turno");
+        if (spinnerReserva) spinnerReserva.classList.remove("oculto");
+        if (btnConfirmar) btnConfirmar.disabled = true;
       }
     });
   }
@@ -331,6 +349,13 @@ document.addEventListener("DOMContentLoaded", () => {
             "Describí tus síntomas con al menos 10 caracteres para recibir la orientación de la IA.";
         }
         e.preventDefault();
+      } else {
+        const spinnerAsistente = document.getElementById("spinner-asistente");
+        const textoCargando = document.getElementById("texto-cargando-ia");
+        const btnConsultar = document.getElementById("btn-consultar-ia");
+        if (spinnerAsistente) spinnerAsistente.classList.remove("oculto");
+        if (textoCargando) textoCargando.classList.remove("oculto");
+        if (btnConsultar) btnConsultar.disabled = true;
       }
     });
   }
