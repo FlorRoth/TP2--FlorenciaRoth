@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Clínica Salud Integral — Gestión de Turnos con IA{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.svg') }}" type="image/svg+xml">
+</head>
+<body>
+
+  {% include "navbar.html" %}
+
+  <main>
+    {% with mensajes = get_flashed_messages(with_categories=true) %}
+      {% if mensajes %}
+        <div class="contenedor-alertas">
+          {% for categoria, mensaje in mensajes %}
+            <div class="alerta {{ 'exito' if categoria == 'exito' else 'error-alerta' }}">
+              {{ mensaje }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "footer.html" %}
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

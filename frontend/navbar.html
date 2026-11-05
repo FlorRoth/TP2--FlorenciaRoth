@@ -1,0 +1,26 @@
+<header id="encabezado">
+  <div class="contenedor-header">
+    <a href="{{ url_for('index') }}" class="marca-clinica">
+      <img src="{{ url_for('static', filename='logo.svg') }}" alt="Logo" class="logo-header">
+      <div class="texto-marca">
+        <span class="etiqueta-superior">CENTRO MÉDICO DIGITAL</span>
+        <h1>Clínica Salud Integral</h1>
+        <p>Gestión inteligente de turnos médicos con asistencia por IA</p>
+      </div>
+    </a>
+
+    <nav id="menu">
+      <a href="{{ url_for('index') }}" class="{{ 'activo-nav' if request.endpoint == 'index' else '' }}">Inicio</a>
+      <a href="{{ url_for('asistente_ia') }}" class="{{ 'activo-nav' if request.endpoint == 'asistente_ia' else '' }}">✨ Asistente IA</a>
+      {% if usuario_actual %}
+        <a href="{{ url_for('turnos') }}" class="{{ 'activo-nav' if request.endpoint == 'turnos' else '' }}">Mis Turnos</a>
+        <span class="usuario-nav">{{ usuario_actual.nombre }}</span>
+        <a href="{{ url_for('logout') }}" class="btn-nav-salir">Salir</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'activo-nav' if request.endpoint == 'login' else '' }}">Iniciar Sesión</a>
+        <a href="{{ url_for('registro') }}" class="btn-nav-destacado">Registrarse</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
