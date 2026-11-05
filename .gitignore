@@ -1,0 +1,18 @@
+# Entorno virtual de Python
+venv/
+.venv/
+env/
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+
+# Variables de entorno e instancia de Flask
+.env
+instance/
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+.DS_Store
+
