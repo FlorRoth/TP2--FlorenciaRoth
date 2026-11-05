@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Turnos | Clínica Salud Integral{% endblock %}
+
+{% block content %}
+<section class="seccion">
+  <h2>Solicitar Nuevo Turno</h2>
+  <p>
+    Completá los datos para reservar tu turno. Si no estás segura/o de qué especialidad elegir,
+    escribí primero tus síntomas en el motivo de consulta y presioná
+    <strong>"Sugerir especialidad con IA"</strong>.
+  </p>
+
+  <form id="form-turno" method="POST" action="{{ url_for('turnos') }}" novalidate>
+    <div class="campo">
+      <label for="motivo">Motivo de consulta o síntomas:</label>
+      <textarea
+        id="motivo"
+        name="motivo"
+        rows="3"
+        placeholder="Describí brevemente tus síntomas o el control que necesitás (mínimo 10 caracteres)..."
+        required
+      >{{ valores.motivo }}</textarea>
+      <p id="error-motivo" class="error">{{ errores.get('motivo', '') }}</p>
+
+      <div class="barra-ia-inline">
+        <button type="button" id="btn-sugerir-ia" class="boton-ia">
+          Sugerir especialidad con IA según mis síntomas
+        </button>
+        <span id="estado-ia-inline" class="texto-ayuda"></span>
+      </div>
+
+      <div id="panel-sugerencia-ia" class="tarjeta-ia oculto">
+        <h4>Sugerencia del Asistente Clínico IA</h4>
+        <p><strong>Especialidad sugerida:</strong> <span id="ia-esp"></span> (<span id="ia-prof"></span>)</p>
+        <p><strong>Prioridad estimada:</strong> <span id="ia-prio" class="badge"></span></p>
+        <p><strong>Recomendación previa:</strong> <span id="ia-rec"></span></p>
+      </div>
+    </div>
+
+    <div class="fila-campos">
+      <div class="campo">
+        <label for="especialidad">Especialidad Médica:</label>
+        <select id="especialidad" name="especialidad" required>
+          <option value="">-- Seleccioná una especialidad --</option>
+          {% for nombre_esp, info in especialidades_catalogo.items() %}
+            <option
+              value="{{ nombre_esp }}"
+              data-profesional="{{ info.profesional }}"
+              data-horarios="{{ info.horarios | join(',') }}"
+              {% if valores.especialidad == nombre_esp %}selected{% endif %}
+            >
+              {{ nombre_esp }} — {{ info.profesional }}
+            </option>
+          {% endfor %}
+        </select>
+        <p id="error-especialidad" class="error">{{ errores.get('especialidad', '') }}</p>
+      </div>
+
+      <div class="campo">
+        <label for="fecha">Fecha del Turno:</label>
+        <input
+          type="date"
+          id="fecha"
+          name="fecha"
+          min="{{ fecha_hoy }}"
+          value="{{ valores.fecha }}"
+          required
+        >
+        <p id="error-fecha" class="error">{{ errores.get('fecha', '') }}</p>
+      </div>
+
+      <div class="campo">
+        <label for="hora">Horario Disponible:</label>
+        <select id="hora" name="hora" data-hora-previa="{{ valores.hora }}" required>
+          <option value="">-- Elegí especialidad y fecha --</option>
+          {% if valores.especialidad in especialidades_catalogo %}
+            {% for h in especialidades_catalogo[valores.especialidad].horarios %}
+              <option value="{{ h }}" {% if valores.hora == h %}selected{% endif %}>{{ h }} hs</option>
+            {% endfor %}
+          {% endif %}
+        </select>
+        <p id="error-hora" class="error">{{ errores.get('hora', '') }}</p>
+      </div>
+    </div>
+
+    <button type="submit" id="btn-confirmar-turno">Confirmar Reserva de Turno</button>
+  </form>
+</section>
+
+<section class="seccion">
+  <div class="cabecera-lista">
+    <h2>Mis Turnos Registrados</h2>
+    <div class="filtros-estado">
+      <a href="{{ url_for('turnos', estado='todos') }}" class="boton-filtro {{ 'activo' if filtro_estado == 'todos' else '' }}">Todos</a>
+      <a href="{{ url_for('turnos', estado='Confirmado') }}" class="boton-filtro {{ 'activo' if filtro_estado == 'Confirmado' else '' }}">Confirmados</a>
+      <a href="{{ url_for('turnos', estado='Cancelado') }}" class="boton-filtro {{ 'activo' if filtro_estado == 'Cancelado' else '' }}">Cancelados</a>
+    </div>
+  </div>
+
+  {% if turnos %}
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th class="celda-fecha">Fecha y Hora</th>
+          <th>Especialidad y Profesional</th>
+          <th>Motivo de Consulta</th>
+          <th>Orientación IA</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in turnos %}
+        <tr>
+          <td data-label="Fecha y Hora" class="celda-fecha">
+            <div>
+              <strong>{{ t.fecha }}</strong><br>
+              <span>{{ t.hora }} hs</span>
+            </div>
+          </td>
+          <td data-label="Especialidad">
+            <div>
+              <strong>{{ t.especialidad }}</strong><br>
+              <small>{{ t.profesional }}</small>
+            </div>
+          </td>
+          <td data-label="Motivo">{{ t.motivo }}</td>
+          <td data-label="Orientación IA">
+            <div>
+              <span class="badge {{ 'badge-alta' if 'Alta' in t.prioridad_ia else ('badge-media' if 'Media' in t.prioridad_ia else 'badge-baja') }}">
+                {{ t.prioridad_ia }}
+              </span>
+              <p class="recomendacion-celda">{{ t.recomendacion_ia }}</p>
+            </div>
+          </td>
+          <td data-label="Estado">
+            <span class="estado-turno {{ 'estado-confirmado' if t.estado == 'Confirmado' else 'estado-cancelado' }}">
+              {{ t.estado }}
+            </span>
+          </td>
+          <td data-label="Acción">
+            {% if t.estado == 'Confirmado' %}
+              <form
+                method="POST"
+                action="{{ url_for('cancelar_turno', turno_id=t.id) }}"
+                class="form-cancelar"
+                data-turno="{{ t.especialidad }} del {{ t.fecha }} a las {{ t.hora }} hs"
+              >
+                <button type="submit" class="boton-peligro">Cancelar</button>
+              </form>
+            {% else %}
+              <small>—</small>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="mensaje-vacio">Todavía no tenés turnos registrados en esta categoría.</p>
+  {% endif %}
+</section>
+
+<!-- Modal -->
+<div id="modal-cancelar" class="modal-fondo oculto" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+  <div class="modal-caja">
+    <h3 id="modal-titulo">Confirmar cancelación de turno</h3>
+    <p>¿Estás segura/o de que querés cancelar el turno de <strong id="modal-detalle-turno"></strong>?</p>
+    <div class="modal-acciones">
+      <button type="button" id="btn-cerrar-modal" class="boton-modal-volver">Volver</button>
+      <button type="button" id="btn-confirmar-modal" class="boton-peligro">Sí, cancelar turno</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
