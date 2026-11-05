@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+    <linearGradient id="crossGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#e0f2fe" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0369a1" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Escudo circular moderno -->
+  <rect x="10" y="10" width="100" height="100" rx="28" fill="url(#bgGrad)" filter="url(#shadow)" />
+  <rect x="14" y="14" width="92" height="92" rx="24" stroke="#bae6fd" stroke-opacity="0.35" stroke-width="2" />
+
+  <!-- Cruz médica estilizada -->
+  <path d="M50 28 C50 25.7909 51.7909 24 54 24 H66 C68.2091 24 70 25.7909 70 28 V50 H92 C94.2091 50 96 51.7909 96 54 V66 C96 68.2091 94.2091 70 92 70 H70 V92 C70 94.2091 68.2091 96 66 96 H54 C51.7909 96 50 94.2091 50 92 V70 H28 C25.7909 70 24 68.2091 24 66 V54 C24 51.7909 25.7909 50 28 50 H50 V28 Z" fill="url(#crossGrad)" />
+
+  <!-- Línea de pulso cardíaco celeste/azul dentro de la cruz -->
+  <path d="M30 60 H44 L49 48 L56 73 L63 52 L68 64 L73 60 H90" stroke="#0284c7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Destello IA superior derecho -->
+  <path d="M88 24 L90.5 30.5 L97 33 L90.5 35.5 L88 42 L85.5 35.5 L79 33 L85.5 30.5 Z" fill="#7dd3fc" />
+</svg>
+
